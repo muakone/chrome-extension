@@ -1,15 +1,14 @@
-
-
 ## Table of Contents
 
 - [Intro](#intro)
 - [Features](#features)
 - [Installation](#installation)
-    - [Procedures](#procedures)
+  - [Procedures](#procedures)
 
 ## Intro <a name="intro"></a>
 
 This boilerplate is made for creating chrome extensions using React and Typescript.
+
 > The focus was on improving the build speed and development experience with Vite.
 
 ## Features <a name="features"></a>
@@ -39,8 +38,8 @@ This boilerplate is made for creating chrome extensions using React and Typescri
 ### For Chrome: <a name="chrome"></a>
 
 1. Run:
-    - Dev: `yarn dev` or `npm run dev`
-    - Prod: `yarn build` or `npm run build`
+   - Dev: `yarn dev` or `npm run dev`
+   - Prod: `yarn build` or `npm run build`
 2. Open in browser - `chrome://extensions`
 3. Check - `Developer mode`
 4. Find and Click - `Load unpacked extension`
@@ -49,16 +48,10 @@ This boilerplate is made for creating chrome extensions using React and Typescri
 ### For Firefox: <a name="firefox"></a>
 
 1. Run:
-    - Dev: `yarn dev:firefox` or `npm run dev:firefox`
-    - Prod: `yarn build:firefox` or `npm run build:firefox`
+   - Dev: `yarn dev:firefox` or `npm run dev:firefox`
+   - Prod: `yarn build:firefox` or `npm run build:firefox`
 2. Open in browser - `about:debugging#/runtime/this-firefox`
 3. Find and Click - `Load Temporary Add-on...`
 4. Select - `manifest.json` from `dist` folder
 
 ### <i>Remember in firefox you add plugin in temporary mode, that's mean it's disappear after close browser, you must do it again, on next launch.</i>
-
-
-
-
-
-
