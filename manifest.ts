@@ -40,8 +40,9 @@ const manifest: chrome.runtime.ManifestV3 = {
         "assets/css/*.css",
         "icon-128.png",
         "icon-34.png",
+        "images/*",
       ],
-      matches: ["*://*/*"],
+      matches: ["<all_urls>"],
     },
   ],
   externally_connectable: {
