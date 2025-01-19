@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 type RecordFuncProps = {
   title?: string;
@@ -8,52 +8,127 @@ type RecordFuncProps = {
   onClick?: (index: number, active: boolean) => void;
 };
 
-const recordFunctions: RecordFuncProps[] = [
-  {
-    title: "pause",
-    img: "images/pause.svg",
-    img2: "images/play.svg",
-    onClick: (index, active) =>
-      console.log(active ? "video played" : "video paused"),
-  },
-  {
-    title: "stop",
-    img: "images/square.svg",
-    onClick: () => console.log("video stopped"),
-  },
-  {
-    title: "camera",
-    img: "images/video.svg",
-    img2: "images/video-off.svg",
-    onClick: (index, active) =>
-      console.log(active ? "camera on" : "camera off"),
-  },
-  {
-    title: "mic",
-    img: "images/mic.svg",
-    img2: "images/mic-off.svg",
-    onClick: (index, active) => console.log(active ? "mic on" : "mic off"),
-  },
-  {
-    img: "images/trash-2.svg",
-    onClick: () => console.log("item deleted"),
-    style: "bg-[#4B4B4B]",
-  },
-];
+const getAssetURL = (url: string) => {
+  return typeof chrome !== "undefined" &&
+    chrome.runtime &&
+    chrome.runtime.getURL
+    ? chrome.runtime.getURL(url)
+    : url;
+};
 
 const Controls = ({
   handleMouseDown,
+  stopRecording,
+  mediaRecorder,
+  combinedMedia,
+  toggleAudio,
+  toggleVideo,
+  setToggleVideo
 }: {
-  handleMouseDown: (index: number) => void;
+  handleMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  stopRecording: () => void;
+  mediaRecorder: MediaRecorder;
+  combinedMedia: MediaStream;
+  toggleAudio: boolean;
+  toggleVideo: boolean;
+  setToggleVideo: (toggle: boolean) => void;
 }) => {
-  const [activeStates, setActiveStates] = useState<boolean[]>(
-    new Array(recordFunctions.length).fill(false)
-  );
+  const recordFunctions: RecordFuncProps[] = [
+    {
+      title: "pause",
+      img: "images/play.svg",
+      img2: "images/pause.svg",
+      onClick: (index, active) => {
+        active ? pauseRecording(index) : resumeRecording(index);
+      },
+    },
+    {
+      title: "stop",
+      img: "images/square.svg",
+      onClick: () => stopRecording(),
+    },
+    {
+      title: "camera",
+      img: "images/video-off.svg",
+      img2: "images/video.svg",
+      onClick: (index) => handleToggle(index, "video"),
+    },
+    {
+      title: "mic",
+      img: "images/mic-off.svg",
+      img2: "images/mic.svg",
+      onClick: (index) => handleToggle(index, "audio"),
+    },
+    {
+      img: "images/trash-2.svg",
+      onClick: () => console.log("item deleted"),
+      style: "bg-[#4B4B4B]",
+    },
+  ];
 
-  const toggleActiveState = (index: number) => {
-    setActiveStates((prev) =>
-      prev.map((state, i) => (i === index ? !state : state))
-    );
+  // Default activeStates to true for all buttons
+  const [activeStates, setActiveStates] = useState<boolean[]>([
+    true,
+    true,
+    toggleVideo,
+    toggleAudio,
+    true
+  ]);
+
+  const pauseRecording = (index: number) => {
+    setActiveStates((prev) => {
+      const newState = prev.map((state, i) => (i === index ? !state : state));
+      return newState;
+    });
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.pause();
+      console.log("Recording paused");
+    }
+  };
+
+  const resumeRecording = (index: number) => {
+    setActiveStates((prev) => {
+      const newState = prev.map((state, i) => (i === index ? !state : state));
+      return newState;
+    });
+    if (mediaRecorder && mediaRecorder.state === "paused") {
+      mediaRecorder.resume();
+      console.log("Recording resumed");
+      alert("Recording resumed")
+    }
+  };
+
+  const toggleOption = (kind: string, activeState: boolean) => {
+    console.log("test", combinedMedia.getTracks())
+    if (combinedMedia) {
+      combinedMedia.getTracks().forEach((track) => {
+        // Check if the track is of the desired kind and is from the webcam
+        if (
+          track.kind === kind &&
+          track.label.toLowerCase().includes("webcam") // Adjust this condition based on the actual label
+        ) {
+          track.enabled = activeState;
+          setToggleVideo(!toggleVideo)
+          console.log(`${kind} (webcam) set to ${activeState}`);
+        } else if (kind === "audio" && track.kind === "audio") {
+          // Handle toggling audio tracks separately
+          track.enabled = activeState;
+          console.log(`audio set to ${activeState}`);
+        }
+      });
+      console.log("combined stream", combinedMedia.getTracks())
+    }
+  };
+  
+
+  const handleToggle = (index: number, kind?: string) => {
+    setActiveStates((prev) => {
+      const newState = prev.map((state, i) => (i === index ? !state : state));
+      if (kind) {
+        toggleOption(kind, newState[index]);
+      }
+      return newState;
+    });
   };
 
   return (
@@ -75,7 +150,6 @@ const Controls = ({
               key={index}
               className="text-center mx-auto cursor-pointer"
               onClick={() => {
-                toggleActiveState(index);
                 data.onClick?.(index, activeStates[index]);
               }}
             >
@@ -87,8 +161,8 @@ const Controls = ({
                 <img
                   src={
                     activeStates[index] && data.img2
-                      ? chrome.runtime.getURL(data.img2)
-                      : chrome.runtime.getURL(data.img)
+                      ? getAssetURL(data.img2)
+                      : getAssetURL(data.img)
                   }
                   alt={data.title ?? "default action"}
                   width={40}
