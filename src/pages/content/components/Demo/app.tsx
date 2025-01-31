@@ -5,7 +5,6 @@ export default function App() {
   useEffect(() => {
     console.log("content view loaded");
   }, []);
-  
 
   return (
     <div className="fixed z-[9999]">

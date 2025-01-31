@@ -1,7 +1,37 @@
 @import "@assets/style/theme.scss";
 
+
 // CSS that can pollute global styles. Use it with caution.
 // If you use ShodowRoot for style pollution, this style will not be applied inside the content script.
 .content-view-style-may-be-not-working {
   font-size: 30px;
 }
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 5px 10px;
+  z-index: 10;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-container:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
